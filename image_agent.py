@@ -1,24 +1,3 @@
-"""
-Image Agent — HuggingFace Inference API (free tier)
-====================================================
-SCENE PROMPTS  ->  IMAGE AGENT  ->  IMAGES
-                                       ↓
-                                VIDEO ASSEMBLER
-
-HuggingFace free inference API do cheezon ke liye mashhoor hai: model "cold"
-hone par 503 dena (loading), aur free-tier rate limits. Isliye:
-  * Model FALLBACK LIST — ek model down/busy ho to agla try hota hai
-  * 503 pe HF jo estimated_time deta hai, usi ka wait karke retry
-  * FLUX.1-schnell jaisa distilled model negative_prompt/guidance_scale
-    accept nahi karta — wahi call TypeError de to un params ke bina retry
-
-Design rules (baaki agents jaise hi):
-  * Node kabhi raise nahi karta
-  * Har scene independent retry karta hai; ek scene fail ho to baaki
-    scenes waste nahi hote
-  * Parallel generation, par concurrency LOW (free tier rate limit ke andar)
-"""
-
 from __future__ import annotations
 
 import logging
@@ -37,9 +16,7 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(name)s | %(message)s")
 logger = logging.getLogger("image_agent")
 
-# ─────────────────────────────────────────────────────────────
-# Config
-# ─────────────────────────────────────────────────────────────
+
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 # Order matters — pehla free/fast, phir fallback. Free tier pe FLUX.1-schnell
@@ -71,9 +48,6 @@ ASPECT_DIMENSIONS = {
 DEFAULT_DIMENSIONS = (768, 1344)
 
 
-# ─────────────────────────────────────────────────────────────
-# State
-# ─────────────────────────────────────────────────────────────
 class GeneratedImage(TypedDict, total=False):
     scene_no: int
     image_path: str
@@ -96,9 +70,7 @@ class ImageAgentState(TypedDict, total=False):
     error: Optional[str]
 
 
-# ─────────────────────────────────────────────────────────────
-# Lazy client
-# ─────────────────────────────────────────────────────────────
+
 _client: Any = None
 
 
@@ -124,9 +96,7 @@ def _is_no_cfg_model(model: str) -> bool:
     return model.strip().lower() in NO_CFG_MODELS
 
 
-# ─────────────────────────────────────────────────────────────
-# Ek model try karo — cold-start (503) aur no-CFG dono handle karo
-# ─────────────────────────────────────────────────────────────
+
 def _generate_with_model(
     model: str, prompt: str, negative_prompt: str, seed: int, width: int, height: int,
 ) -> bytes:
@@ -205,9 +175,6 @@ def synthesize_image(
     return GeneratedImage(scene_no=scene_no, error=f"Saare models fail ho gaye: {last_err}")
 
 
-# ─────────────────────────────────────────────────────────────
-# Node — parallel, low concurrency (free tier)
-# ─────────────────────────────────────────────────────────────
 def image_node(state: ImageAgentState) -> dict:
     scenes = state.get("scenes_out") or []
     if not scenes:
@@ -255,9 +222,6 @@ def image_node(state: ImageAgentState) -> dict:
     return {"images": ordered, "error": None}
 
 
-# ─────────────────────────────────────────────────────────────
-# Graph
-# ─────────────────────────────────────────────────────────────
 def build_image_agent():
     builder = StateGraph(ImageAgentState)
     builder.add_node("image_node", image_node)
@@ -292,9 +256,7 @@ def from_scene_agent(scene_result: dict, **kwargs) -> ImageAgentState:
     return run_image_agent(scene_result, **kwargs)
 
 
-# ─────────────────────────────────────────────────────────────
-# Test
-# ─────────────────────────────────────────────────────────────
+
 if __name__ == "__main__":
     dummy_scenes = {
         "scenes_out": [

@@ -17,8 +17,7 @@ load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(name)s | %(message)s")
 logger = logging.getLogger("voice_agent")
-# Config — Sarvam AI (SARVAM_API_KEY .env me chahiye, indus.sarvam.ai se milegi)
-# ─────────────────────────────────────────────────────────────
+
 DEFAULT_VOICE_ID = "shubh"    # Male, conversational. Female: "anushka"
 VOICE_ID = os.getenv("SARVAM_VOICE_ID", DEFAULT_VOICE_ID)
 
@@ -40,8 +39,9 @@ DEFAULT_VOICE_SETTINGS: VoiceSettings = {
     "pitch": 0.0,
     "loudness": 1.0,
 }
-# State (structure same rakha hai — Video Assembler ko change nahi karna padega)
-# ─────────────────────────────────────────────────────────────
+
+
+
 class AudioSegment(TypedDict, total=False):
     segment_id: str          # "hook" | "scene_1" | "scene_2" | ... | "cta"
     text: str
@@ -71,9 +71,7 @@ class VoiceState(TypedDict, total=False):
     error: Optional[str]
 
 
-# Available speakers dekhne ke liye — Sarvam ki speaker list fixed/literal hai,
-# koi API call nahi chahiye (docs: docs.sarvam.ai/api-reference-docs/text-to-speech)
-# ────────────────────────────────────────────────────────────
+
 AVAILABLE_SPEAKERS = [
     "anushka", "abhilash", "manisha", "vidya", "arya", "karun", "hitesh",
     "aditya", "ritu", "priya", "neha", "rahul", "pooja", "rohan", "simran",
@@ -88,15 +86,14 @@ def list_voices() -> list[str]:
     """Apne available Sarvam speakers dekhne ke liye — voice_id choose karne me madad."""
     return AVAILABLE_SPEAKERS
 
-# Duration — mutagen (ffmpeg nahi chahiye, sirf mp3 header padhta hai)
-# ─────────────────────────────────────────────────────────────
+
+
 def get_audio_duration(path: Path) -> float:
     from mutagen.mp3 import MP3
 
     return round(MP3(str(path)).info.length, 2)
 
-# Single segment synthesize — Sarvam AI + retry
-# ─────────────────────────────────────────────────────────────
+
 async def _synthesize_async(
     text: str, voice_id: str, model_id: str, voice_settings: VoiceSettings, out_path: Path
 ) -> None:
@@ -169,8 +166,7 @@ def synthesize_segment(
 
     return AudioSegment(segment_id=segment_id, text=text, error=f"TTS fail: {last_err}")
 
-# Node: voice_node — saare segments parallel me synthesize karta hai
-# ─────────────────────────────────────────────────────────────
+
 def _build_segment_list(state: VoiceState) -> list[tuple[str, str]]:
     items: list[tuple[str, str]] = []
     if (state.get("hook") or "").strip():
@@ -249,8 +245,7 @@ def voice_node(state: VoiceState) -> dict:
         "error": None,
     }
 
-# Graph
-# ─────────────────────────────────────────────────────────────
+
 def build_voice_agent():
     builder = StateGraph(VoiceState)
     builder.add_node("voice_node", voice_node)
@@ -284,8 +279,6 @@ def run_voice_agent(
         }
     )
 
-# Guardrail-approved pipeline se seedha jodne ka helper
-# ─────────────────────────────────────────────────────────────
 def from_approved(result: dict, **kwargs) -> VoiceState:
     """result = guardrails.get_approved_script() ka output."""
     if not result.get("approved"):
@@ -295,7 +288,7 @@ def from_approved(result: dict, **kwargs) -> VoiceState:
     return run_voice_agent(result["script"], **kwargs)
 
 # Test
-# ─────────────────────────────────────────────────────────────
+
 if __name__ == "__main__":
     dummy_script = {
         "title": "AI in Devlopment",

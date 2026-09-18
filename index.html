@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vision-Fly X Paradox — AI Video Studio</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <div class="glow glow-a" aria-hidden="true"></div>
+  <div class="glow glow-b" aria-hidden="true"></div>
+
+  <svg class="line-pattern" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g>
+      <path d="M -100,60  C 200,10  400,110 700,60  C 1000,10  1200,110 1500,60"  opacity="0.05"/>
+      <path d="M -100,160 C 200,100 400,220 700,160 C 1000,100 1200,220 1500,160" opacity="0.08"/>
+      <path d="M -100,270 C 200,215 400,325 700,270 C 1000,215 1200,325 1500,270" opacity="0.12"/>
+      <path d="M -100,380 C 200,315 400,445 700,380 C 1000,315 1200,445 1500,380" opacity="0.15"/>
+      <path d="M -100,480 C 200,430 400,530 700,480 C 1000,430 1200,530 1500,480" opacity="0.12"/>
+      <path d="M -100,590 C 200,540 400,640 700,590 C 1000,540 1200,640 1500,590" opacity="0.08"/>
+      <path d="M -100,700 C 200,655 400,745 700,700 C 1000,655 1200,745 1500,700" opacity="0.06"/>
+      <path d="M -100,810 C 200,770 400,850 700,810 C 1000,770 1200,850 1500,810" opacity="0.04"/>
+    </g>
+  </svg>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-text">
+        <span class="brand-name">Vision-Fly <em>X</em> Paradox</span>
+        <span class="brand-tagline">AI video studio, from an idea to a finished reel</span>
+      </div>
+    </div>
+    <nav class="topnav">
+      <button class="nav-link is-active" data-view="studio">Studio</button>
+      <button class="nav-link" data-view="library">Library</button>
+    </nav>
+  </header>
+
+  <main class="page">
+
+    <!-- ================= STUDIO VIEW ================= -->
+    <section class="view" id="view-studio">
+      <div class="studio-grid">
+
+        <!-- Left: input panel -->
+        <div class="glass panel panel-input">
+          <h1 class="panel-title">Turn a thought into a video</h1>
+          <p class="panel-sub">Type an idea, drop a photo, or send a voice note — Vision-Fly writes the script, checks it, voices it, and cuts the final reel.</p>
+
+          <div class="tabs" role="tablist">
+            <button class="tab is-active" data-tab="text" role="tab">Text</button>
+            <button class="tab" data-tab="image" role="tab">Image</button>
+            <button class="tab" data-tab="voice" role="tab">Voice</button>
+          </div>
+
+          <form id="generate-form">
+            <div class="tab-panel is-active" data-panel="text">
+              <textarea id="text-input" placeholder="e.g. Kaise AI ab Indian farmers ki madad kar raha hai" rows="4"></textarea>
+            </div>
+
+            <div class="tab-panel" data-panel="image">
+              <label class="dropzone" for="image-input" id="image-dropzone">
+                <input type="file" id="image-input" accept=".jpg,.jpeg,.png,.webp,.bmp,.gif" hidden>
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M4 16.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10.5M4 16.5 8.5 12a2 2 0 0 1 2.8 0L15 15.7M4 16.5V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5M15 15.7 16.6 14a2 2 0 0 1 2.8 0L20 14.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="9" r="1.6" fill="currentColor"/></svg>
+                <span class="dz-title">Drop a photo, or click to browse</span>
+                <span class="dz-sub">JPG, PNG or WebP — up to 25 MB</span>
+              </label>
+              <div class="file-chip" id="image-chip" hidden></div>
+            </div>
+
+            <div class="tab-panel" data-panel="voice">
+              <label class="dropzone" for="voice-input" id="voice-dropzone">
+                <input type="file" id="voice-input" accept=".mp3,.wav,.m4a,.ogg,.flac,.aac,.webm" hidden>
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Z" stroke="currentColor" stroke-width="1.6"/><path d="M6 11a6 6 0 0 0 12 0M12 19v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                <span class="dz-title">Upload a voice note, or click to browse</span>
+                <span class="dz-sub">MP3, WAV or M4A</span>
+              </label>
+              <button type="button" class="mic-btn" id="mic-btn">
+                <span class="mic-dot"></span> Record instead
+              </button>
+              <div class="file-chip" id="voice-chip" hidden></div>
+            </div>
+
+            <div class="settings-grid">
+              <label class="field">
+                <span>Length</span>
+                <select id="opt-duration">
+                  <option value="30">30 seconds</option>
+                  <option value="45" selected>45 seconds</option>
+                  <option value="60">60 seconds</option>
+                  <option value="90">90 seconds</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Language</span>
+                <select id="opt-language">
+                  <option value="hinglish" selected>Hinglish</option>
+                  <option value="hindi">Hindi</option>
+                  <option value="english">English</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Tone</span>
+                <select id="opt-tone">
+                  <option value="educational" selected>Educational</option>
+                  <option value="storytelling">Storytelling</option>
+                  <option value="news">News</option>
+                  <option value="motivational">Motivational</option>
+                  <option value="funny">Funny</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Frame</span>
+                <select id="opt-aspect">
+                  <option value="9:16" selected>9:16 — Reels/Shorts</option>
+                  <option value="16:9">16:9 — Landscape</option>
+                  <option value="1:1">1:1 — Square</option>
+                  <option value="4:5">4:5 — Portrait</option>
+                </select>
+              </label>
+            </div>
+
+            <button type="submit" class="generate-btn" id="generate-btn">
+              <span>Generate video</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </form>
+        </div>
+
+        <!-- Right: progress / result panel -->
+        <div class="glass panel panel-result" id="result-panel">
+          <div class="result-idle" id="result-idle">
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M17 9.5 21 7v10l-4-2.5" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            <p>Your reel will take shape here — usually a minute or two, start to finish.</p>
+          </div>
+
+          <div class="result-progress" id="result-progress" hidden>
+            <div class="stage-track">
+              <div class="stage-dot" data-stage="input"><span>Input</span></div>
+              <div class="stage-dot" data-stage="script"><span>Script</span></div>
+              <div class="stage-dot" data-stage="voice_scene"><span>Voice &amp; Scenes</span></div>
+              <div class="stage-dot" data-stage="image"><span>Images</span></div>
+              <div class="stage-dot" data-stage="assemble"><span>Assembly</span></div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+            <p class="progress-message" id="progress-message">Starting up…</p>
+          </div>
+
+          <div class="result-error" id="result-error" hidden>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            <p id="error-message"></p>
+            <button class="retry-btn" id="retry-btn">Try again</button>
+          </div>
+
+          <div class="result-done" id="result-done" hidden>
+            <video id="result-video" controls playsinline></video>
+            <div class="result-meta">
+              <h3 id="result-title"></h3>
+              <span id="result-duration"></span>
+            </div>
+            <a class="download-btn" id="download-link" download>Download video</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= LIBRARY VIEW ================= -->
+    <section class="view" id="view-library" hidden>
+      <div class="library-header">
+        <h1 class="panel-title">Your library</h1>
+        <p class="panel-sub">Every reel Vision-Fly has generated on this machine.</p>
+      </div>
+      <div class="library-grid" id="library-grid"></div>
+      <p class="library-empty" id="library-empty" hidden>Nothing here yet — generate your first video in the Studio tab.</p>
+    </section>
+
+  </main>
+
+  <footer class="page-footer">Vision-Fly X Paradox — running locally, nothing leaves this machine.</footer>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>

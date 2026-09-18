@@ -1,23 +1,3 @@
-"""
-Script Agent — Multi-Agent Video Generation Pipeline
-=====================================================
-INPUT AGENT (topic)  ->  SCRIPT AGENT  ->  script  ->  GUARDRAILS
-                              ↑                            │
-                              └──────── REWRITE ───────────┘
-
-Kaam:
-  1. Topic ko ek structured video script me convert karna (hook + scenes + CTA)
-  2. Har scene ke saath narration (Voice Agent ke liye) aur visual_description
-     (Scene/Image Agent ke liye) dena
-  3. Guardrail se REWRITE aane par usi feedback ko le kar script sudharna
-
-Design rules (Input Agent jaise hi):
-  * Node kabhi raise nahi karta -> error state me jaata hai
-  * LLM strict JSON deta hai, aur parser fenced/dirty JSON bhi handle karta hai
-  * Invalid JSON pe apne aap retry (MAX_GEN_ATTEMPTS tak)
-  * Rewrite loop pe hard limit (MAX_REWRITES) -> infinite loop se bachne ke liye
-"""
-
 from __future__ import annotations
 
 import json
@@ -34,9 +14,7 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(name)s | %(message)s")
 logger = logging.getLogger("script_agent")
 
-# ─────────────────────────────────────────────────────────────
-# Config
-# ─────────────────────────────────────────────────────────────
+
 GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 
 DEFAULT_DURATION = 60        # seconds
@@ -51,9 +29,7 @@ Language = Literal["hindi", "hinglish", "english"]
 Tone = Literal["educational", "storytelling", "news", "motivational", "funny"]
 
 
-# ─────────────────────────────────────────────────────────────
-# State
-# ─────────────────────────────────────────────────────────────
+
 class Scene(TypedDict):
     scene_no: int
     narration: str            # -> Voice Agent
@@ -87,9 +63,6 @@ class ScriptState(TypedDict, total=False):
     error: Optional[str]
 
 
-# ─────────────────────────────────────────────────────────────
-# Lazy LLM
-# ─────────────────────────────────────────────────────────────
 _llm: Any = None
 
 
@@ -105,9 +78,6 @@ def get_llm(temperature: float = 0.7):
     return _llm
 
 
-# ─────────────────────────────────────────────────────────────
-# JSON parsing — LLM ka output kabhi saaf nahi aata
-# ─────────────────────────────────────────────────────────────
 def extract_json(raw: str) -> dict:
     """```json fences, preamble text, trailing commas — sab handle karta hai."""
     if not raw or not raw.strip():
@@ -128,9 +98,6 @@ def extract_json(raw: str) -> dict:
         return json.loads(cleaned)
 
 
-# ─────────────────────────────────────────────────────────────
-# Prompts
-# ─────────────────────────────────────────────────────────────
 SCHEMA = """{
   "title": "short catchy video title",
   "hook": "first 3-5 seconds ka attention grabbing line",
@@ -196,9 +163,6 @@ def build_prompt(state: ScriptState) -> str:
     return "\n".join(parts)
 
 
-# ─────────────────────────────────────────────────────────────
-# Validation / normalization
-# ─────────────────────────────────────────────────────────────
 def normalize_script(data: dict, language: Language) -> dict:
     if not isinstance(data, dict):
         raise ValueError("JSON object expected")
@@ -247,9 +211,7 @@ def normalize_script(data: dict, language: Language) -> dict:
     }
 
 
-# ─────────────────────────────────────────────────────────────
-# Node: generate script
-# ─────────────────────────────────────────────────────────────
+
 def script_node(state: ScriptState) -> dict:
     topic = (state.get("topic") or "").strip()
     if not topic:
@@ -297,9 +259,7 @@ def script_node(state: ScriptState) -> dict:
     }
 
 
-# ─────────────────────────────────────────────────────────────
-# Graph
-# ─────────────────────────────────────────────────────────────
+
 def build_script_agent():
     builder = StateGraph(ScriptState)
     builder.add_node("script_node", script_node)
@@ -345,9 +305,6 @@ def run_script_agent(
     )
 
 
-# ─────────────────────────────────────────────────────────────
-# Input Agent ke saath jodne ka helper
-# ─────────────────────────────────────────────────────────────
 def from_input_agent(input_result: dict, **kwargs) -> ScriptState:
     if input_result.get("error"):
         return ScriptState(error=f"Input Agent fail: {input_result['error']}", scenes=[])
@@ -358,9 +315,6 @@ def from_input_agent(input_result: dict, **kwargs) -> ScriptState:
     )
 
 
-# ─────────────────────────────────────────────────────────────
-# Test
-# ─────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     out = run_script_agent("AI in Agriculture", duration_sec=45, language="hinglish")
 
@@ -376,9 +330,3 @@ if __name__ == "__main__":
             print("  visual   :", s["visual_description"])
         print("\nCTA   :", out["cta"])
 
-    # Rewrite loop ka example (guardrail ke baad):
-    # out2 = run_script_agent(
-    #     "AI in Agriculture",
-    #     feedback="Scene 3 me ek real brand ka naam hai, usse hatao",
-    #     rewrite_count=out.get("rewrite_count", 0) + 1,
-    # )
